@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/dist/css/bootstrap.css">
+    <script type="text/javascript" src="/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="/bootstrap/dist/js/bootstrap.js"></script>
+    <style type="text/css">
+        /*聊天区*/
+        #content
+        {
+
+        }
+        #up
+        {
+            padding: 10px;
+            height: 300px;
+            overflow: scroll;
+        }
+        #down
+        {
+            padding: 10px;
+        }
+
+        
+        /*好友列表*/
+        #list
+        {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div id="content" class="col-md-8 col-xs-8 col-sm-8">
+                <!-- pre-scrollable 滚动条 -->
+                <ul id="up" class="row list-unstyled pre-scrollable">
+                    
+                    <div id="msgEnd" style="height:0px; overflow:hidden"></div>
+                </ul>
+                <hr>
+                <div id="down" class="row">
+                    <div class="col-md-10 col-xs-10 col-sm-10">
+                        <textarea id="text" class="form-control"></textarea>
+                    </div>
+                    <div class="col-md-2 col-xs-2 col-sm-2">
+                        <button id="send" class="btn btn-primary">发送</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-4 col-sm-4">
+                <ul id="list" class="row list-unstyled">
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- 发送模板 -->
+    <li style="display: none;" class="row" id="sender">
+        <div class="col-md-12 col-xs-12 xol-sm-12">
+            <span class="pull-right">
+                <span style="word-wrap:break-word;word-break:break-all;" class="text-info msg">我发的消息</span><img class="img-circle" src="/images/1.jpg" width="34">
+            </span>
+        </div>
+    </li>
+
+    <!-- 接收模板 -->
+    <div style="display: none;" class="row" id="receiver">
+        <div class="col-md-12 col-xs-12 xol-sm-12">
+            <span class="pull-left">
+                <img class="img-circle" src="/images/2.jpg" width="34"><span style="word-wrap:break-word;word-break:break-all;" class="text-danger msg">接收的消息</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- 昵称列表模板 -->
+    <li style="display: none;" id="item">
+        <img class="img-circle" src="/images/3.jpg" width="34"><span>这里是昵称</span>
+    </li>
+
+    <script type="text/javascript">
+        
+        
+    </script>
+    
+</body>
+</html>

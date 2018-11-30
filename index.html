@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <!--<link rel="stylesheet" type="text/css" href="/bootstrap/dist/css/bootstrap.css">-->
+    <!--直接引入cdn，无须下载到本地-->
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!--<script type="text/javascript" src="/jquery/dist/jquery.js"></script>-->
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!--<script type="text/javascript" src="/bootstrap/dist/js/bootstrap.js"></script>-->
+    <!--避免F12出现favicon.ico not found，此处引用的是阿里巴巴矢量库里的图片，有版权限制-->
+    <link rel="shortcut icon" href="/images/五角星.png" />
+
+    <style type="text/css">
+        /*聊天区*/
+        #content
+        {
+
+        }
+        #up
+        {
+            padding: 10px;
+            height: 300px;
+            overflow: scroll;
+        }
+        #down
+        {
+            padding: 10px;
+        }
+
+
+        /*好友列表*/
+        #list
+        {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div id="content" class="col-md-8 col-xs-8 col-sm-8">
+            <!-- pre-scrollable 滚动条 -->
+            <!--消息显示区-->
+            <ul id="up" class="row list-unstyled pre-scrollable">
+
+                <div id="msgEnd" style="height:0px; overflow:hidden"></div>
+            </ul>
+            <hr>
+            <!--发送消息区-->
+            <div id="down" class="row">
+                <div class="col-md-10 col-xs-10 col-sm-10">
+                    <textarea id="text" class="form-control"></textarea>
+                </div>
+                <div class="col-md-2 col-xs-2 col-sm-2">
+                    <button id="send" class="btn btn-primary">发送</button>
+                </div>
+            </div>
+        </div>
+        <!--昵称显示区-->
+        <div class="col-md-4 col-xs-4 col-sm-4">
+            <ul id="list" class="row list-unstyled">
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<!-- 发送模板 -->
+<li style="display: none;" class="row" id="sender">
+    <div class="col-md-12 col-xs-12 xol-sm-12">
+            <span class="pull-right">
+                <span style="word-wrap:break-word;word-break:break-all;" class="text-info msg">我发的消息</span><img class="img-circle" src="/images/1.jpeg" width="34">
+            </span>
+    </div>
+</li>
+
+<!-- 接收模板 -->
+<div style="display: none;" class="row" id="receiver">
+    <div class="col-md-12 col-xs-12 xol-sm-12">
+            <span class="pull-left">
+                <img class="img-circle" src="/images/2.jpeg" width="34"><span style="word-wrap:break-word;word-break:break-all;" class="text-danger msg">接收的消息</span>
+            </span>
+    </div>
+</div>
+
+<!-- 昵称列表模板 -->
+<li style="display: none;" id="item">
+    <img class="img-circle" src="/images/3.jpeg" width="34"><span>这里是昵称</span>
+</li>
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+var socket = io.connect('http://172.16.1.118:8080');
+var nickName = window.prompt('请输入您的名字');
+while(!nickName)
+{
+    nickName = window.prompt('请输入您的名字');
+}
+
+// var nickName = 111;
+// 显示昵称；发送emit时显示 503 Service Unavailable，服务不可用，查看命令行是否报错。
+socket.emit('login',{nickName:nickName});  //将登陆用户的nickName发送到服务端
+//监听新登陆的用户频道
+
+
+//监听all频道
+socket.on('all', function(data){
+// console.log(data);
+for(var i = 0; i < data.length; i++)
+{
+    //克隆
+    var newItem = $('#item').clone();
+    //修改昵称
+    newItem.find('span').html(data[i].nickName);
+    //显示
+    newItem.show();
+    //追加
+    $('#list').append(newItem);
+}
+});
+
+//监听new login 频道, 新登陆的那一个用户将会广播到所有用户，不刷新页面的情况下
+socket.on('new login', function(data){
+    var newLoginItem = $('#item').clone();
+    newLoginItem.find('span').html(data.nickName);
+    newLoginItem.show();
+    //append 在被选元素结尾插入内容，list 所在标签内部的尾部添加，append 和 prepend都是在标签内部尾部和首部添加，before和after都是在标签外部的首部和尾部添加。
+    $('#list').append(newLoginItem);
+})
+
+
+
+
+//添加send 事件
+    $('#send').on('click', function(){
+        var msg = $('#text').val();
+        console.log(msg);
+        if(msg.length <= 0)
+        {
+            return ;
+        }
+        socket.emit('send', {nickName:nickName, msg:msg});
+        var newSend = $('#sender').clone();
+        newSend.find('.msg').text(msg);
+        newSend.show();
+        $('#msgEnd').before(newSend);
+        $('#text').val(''); //清空输入框中的数据
+        //发送的数据超出显示框时，滚动滚动条，时刚发送的消息一直显示在显示框的底部。
+        var h = $('#up').get(0).scrollHeight;
+        $('#up').scrollTop(h);
+
+
+
+    });
+
+//添加监听事件 rec ，send发送消息之后服务器将消息广播至所有用户
+    socket.on('rec', function(data){
+        var newRec = $('#receiver').clone();
+        newRec.find('.msg').text(data.msg);
+        newRec.show();
+        $('#msgEnd').before(newRec); //在被选元素之前插入内容，msgEnd 所在标签外，msgEnd 相当于一个标志，在显示框最底部发送和接收的模版不能超出它。
+        var h = $('#up').get(0).scrollHeight;
+        $('#up').scrollTop(h);
+
+
+
+
+
+    });
+
+    //添加键盘enter事件
+    $(window).on('keydown', function(event){
+        console.log(event.keycode);
+        if(event.keyCode === 13)
+        {
+            $('#send').trigger('click');
+            return false;
+        }
+    })
+
+
+</script>
+
+</body>
+</html>
